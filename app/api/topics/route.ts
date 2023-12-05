@@ -1,13 +1,49 @@
+import { TopicModel, connectDB } from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server"
 
-export const GET = () => {
+connectDB()
+export const GET = async () => {
 
-    return NextResponse.json({msg:'ok'},{status:201})
+    try {
+        // 数据库查询操作
+        const topics = await TopicModel.find()
+    
+        return NextResponse.json({topics},{status:200})
+    } catch (error) {
+        
+        return NextResponse.json({msg:"error"},{status:500})
+    }
 }
 
+
 export const POST = async (request:NextRequest) => {
-    const { title,describe } = await request.json()
+    try {
+        
+        const { title, describe } = await request.json()
+        
+        // 数据库添加操作
+        await TopicModel.create({
+            title,
+            describe
+        })
+        
+        return NextResponse.json({title,describe},{status:200})
 
+    } catch (error) {
+        return NextResponse.json({msg:"error"},{status:500})
+        
+    }
+}
 
-    return NextResponse.json({title,describe},{status:201})
+export const DELETE = async (request:NextRequest) => {
+    try {
+        const id = request.nextUrl.searchParams.get('id')
+        // 数据库添加操作
+        await TopicModel.findByIdAndDelete(id);
+        return NextResponse.json({msg:"delete ok"},{status:200})
+
+    } catch (error) {
+        return NextResponse.json({msg:"error"},{status:500})
+        
+    }
 }
